@@ -5,29 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynamic Product Label</title>
     <style>
-        /* กำหนดขนาดกระดาษสำหรับการพิมพ์ */
         @page {
             size: 4in 2in; /* ขนาดกระดาษ 4x2 นิ้ว */
-            margin: 0; /* ไม่มีขอบกระดาษ */
+            margin: 0;
         }
 
-        /* ซ่อนทุกอย่างเมื่ออยู่ในหน้าจอ */
         body {
             visibility: hidden; /* ซ่อนเนื้อหาบนหน้าจอ */
             margin: 0;
             padding: 0;
         }
 
-        /* แสดงเฉพาะเวลาพิมพ์ */
         @media print {
             body {
-                visibility: visible; /* แสดงเนื้อหาเฉพาะเวลาพิมพ์ */
+                visibility: visible; /* แสดงเฉพาะเวลาพิมพ์ */
             }
         }
 
         .label {
-            width: 4in; /* ความกว้าง 4 นิ้ว */
-            height: 2in; /* ความสูง 2 นิ้ว */
+            width: 4in;
+            height: 2in;
             padding: 10px;
             box-sizing: border-box;
             display: flex;
@@ -36,7 +33,7 @@
         }
 
         .label .info {
-            width: 60%; /* พื้นที่สำหรับข้อความ */
+            width: 60%;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -53,7 +50,7 @@
         }
 
         .label .qrcode {
-            width: 40%; /* พื้นที่สำหรับ QR Code */
+            width: 40%;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -61,59 +58,60 @@
 
         canvas {
             display: block;
-            width: 90px; /* ขนาด QR Code */
+            width: 90px;
             height: 90px;
         }
     </style>
 </head>
 <body>
     <div class="label">
-        <!-- ข้อมูลสินค้า -->
         <div class="info">
             <h3 id="product-name">Product Name</h3>
             <p id="sku">SKU</p>
             <p id="price">Price</p>
         </div>
-
-        <!-- QR Code -->
         <div class="qrcode">
             <canvas id="qrcode"></canvas>
         </div>
     </div>
 
-    <!-- ไลบรารี QR Code -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-
     <script>
         // ดึงพารามิเตอร์จาก URL
         const params = new URLSearchParams(window.location.search);
-        const productName = params.get('product') || 'Sample Product'; // ค่าเริ่มต้น
-        const sku = params.get('sku') || '12345'; // ค่าเริ่มต้น
-        const price = params.get('price') || '15.00'; // ค่าเริ่มต้น
-        const qrUrl = params.get('url') || 'https://example.com'; // ค่าเริ่มต้น
+        const productName = params.get('product') || 'Sample Product';
+        const sku = params.get('sku') || '12345';
+        const price = params.get('price') || '15.00';
+        const qrUrl = params.get('url') || 'https://example.com';
 
         // อัปเดตข้อมูลใน HTML
         document.getElementById('product-name').textContent = `Product Name: ${productName}`;
         document.getElementById('sku').textContent = `SKU: ${sku}`;
         document.getElementById('price').textContent = `Price: $${price}`;
 
-        // สร้าง QR Code ใน Canvas
+        // สร้าง QR Code และรอจนสร้างเสร็จ
         QRCode.toCanvas(document.getElementById('qrcode'), qrUrl, {
-            width: 90, // ขนาด QR Code
-            margin: 1  // ระยะห่างรอบ QR Code
+            width: 90,
+            margin: 1
         }, function (error) {
             if (error) {
                 console.error("QR Code Error: ", error);
+            } else {
+                // รอให้ QR Code สร้างเสร็จแล้วจึงพิมพ์
+                finalizePrint();
             }
         });
 
-        // พิมพ์และปิดหน้าต่างอัตโนมัติ
-        window.onload = function () {
-            window.print(); // สั่งพิมพ์
-            window.onafterprint = function () {
-                window.close(); // ปิดหน้าต่างหลังพิมพ์
-            };
-        };
+        // ฟังก์ชันสำหรับพิมพ์เมื่อทุกอย่างพร้อม
+        function finalizePrint() {
+            setTimeout(() => {
+                // รอเวลาเล็กน้อยให้ DOM เสถียร
+                window.print();
+                window.onafterprint = function () {
+                    window.close();
+                };
+            }, 500); // เพิ่ม delay 500ms เพื่อให้โหลดเสร็จสมบูรณ์
+        }
     </script>
 </body>
 </html>
