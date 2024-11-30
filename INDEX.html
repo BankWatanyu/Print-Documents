@@ -94,6 +94,11 @@
         document.getElementById('customer').innerText = customer;
         document.getElementById('items').innerText = items.replace(/,/g, ', '); // แสดงรายการแบบมี comma
         document.getElementById('total').innerText = parseFloat(total).toFixed(2);
+
+        // พิมพ์อัตโนมัติเมื่อหน้าโหลดเสร็จ
+    window.onload = function() {
+        window.print();
+    };
     </script>
 </body>
 </html>
