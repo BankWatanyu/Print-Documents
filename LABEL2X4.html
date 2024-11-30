@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Product Label</title>
+    <style>
+        /* กำหนดขนาดกระดาษสำหรับการพิมพ์ */
+        @page {
+            size: 4in 2in; /* ขนาดกระดาษ 4x2 นิ้ว */
+            margin: 0; /* ไม่มีขอบกระดาษ */
+        }
+
+        /* ซ่อนทุกอย่างเมื่ออยู่ในหน้าจอ */
+        body {
+            visibility: hidden; /* ซ่อนเนื้อหาบนหน้าจอ */
+            margin: 0;
+            padding: 0;
+        }
+
+        /* แสดงเฉพาะเวลาพิมพ์ */
+        @media print {
+            body {
+                visibility: visible; /* แสดงเนื้อหาเฉพาะเวลาพิมพ์ */
+            }
+        }
+
+        .label {
+            width: 4in; /* ความกว้าง 4 นิ้ว */
+            height: 2in; /* ความสูง 2 นิ้ว */
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .label .info {
+            width: 60%; /* พื้นที่สำหรับข้อความ */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .label .info h3 {
+            font-size: 14px;
+            margin: 0 0 5px 0;
+        }
+
+        .label .info p {
+            font-size: 12px;
+            margin: 5px 0;
+        }
+
+        .label .qrcode {
+            width: 40%; /* พื้นที่สำหรับ QR Code */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            display: block;
+            width: 90px; /* ขนาด QR Code */
+            height: 90px;
+        }
+    </style>
+</head>
+<body>
+    <div class="label">
+        <!-- ข้อมูลสินค้า -->
+        <div class="info">
+            <h3 id="product-name">Product Name</h3>
+            <p id="sku">SKU</p>
+            <p id="price">Price</p>
+        </div>
+
+        <!-- QR Code -->
+        <div class="qrcode">
+            <canvas id="qrcode"></canvas>
+        </div>
+    </div>
+
+    <!-- ไลบรารี QR Code -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+    <script>
+        // ดึงพารามิเตอร์จาก URL
+        const params = new URLSearchParams(window.location.search);
+        const productName = params.get('product') || 'Sample Product'; // ค่าเริ่มต้น
+        const sku = params.get('sku') || '12345'; // ค่าเริ่มต้น
+        const price = params.get('price') || '15.00'; // ค่าเริ่มต้น
+        const qrUrl = params.get('url') || 'https://example.com'; // ค่าเริ่มต้น
+
+        // อัปเดตข้อมูลใน HTML
+        document.getElementById('product-name').textContent = `Product Name: ${productName}`;
+        document.getElementById('sku').textContent = `SKU: ${sku}`;
+        document.getElementById('price').textContent = `Price: $${price}`;
+
+        // สร้าง QR Code ใน Canvas
+        QRCode.toCanvas(document.getElementById('qrcode'), qrUrl, {
+            width: 90, // ขนาด QR Code
+            margin: 1  // ระยะห่างรอบ QR Code
+        }, function (error) {
+            if (error) {
+                console.error("QR Code Error: ", error);
+            }
+        });
+
+        // พิมพ์และปิดหน้าต่างอัตโนมัติ
+        window.onload = function () {
+            window.print(); // สั่งพิมพ์
+            window.onafterprint = function () {
+                window.close(); // ปิดหน้าต่างหลังพิมพ์
+            };
+        };
+    </script>
+</body>
+</html>
