@@ -3,102 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Receipt</title>
+    <title>Receipt</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
+            width: 80mm;
         }
-        .receipt-container {
-            max-width: 600px;
-            margin: auto;
-            border: 1px solid #ddd;
-            padding: 20px;
-            border-radius: 5px;
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
         }
         .header {
             text-align: center;
-            border-bottom: 2px solid #000;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+            margin-bottom: 10px;
         }
         .header h1 {
             margin: 0;
+            font-size: 18px;
         }
         .header p {
-            margin: 5px 0;
-            color: #555;
+            margin: 2px 0;
+            font-size: 12px;
         }
-        .details, .items {
-            margin-bottom: 20px;
+        .details {
+            margin-bottom: 10px;
+            font-size: 12px;
         }
-        .items p {
-            margin: 5px 0;
+        .details p {
+            margin: 2px 0;
+        }
+        .items {
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+        .items .item {
+            display: flex;
+            justify-content: space-between;
         }
         .total {
             text-align: right;
-            font-size: 1.2rem;
-            margin-top: 20px;
+            font-size: 14px;
+            margin-top: 10px;
+            border-top: 1px dashed #000;
+            padding-top: 5px;
         }
         .footer {
             text-align: center;
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #555;
-        }
-        button {
-            display: block;
-            margin: auto;
-            padding: 10px 20px;
-            font-size: 1rem;
-            cursor: pointer;
+            margin-top: 10px;
+            font-size: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="receipt-container">
+    <div class="receipt">
         <div class="header">
             <h1>ABC Shop</h1>
             <p>123 Main Street, City, Country</p>
             <p>Phone: (123) 456-7890</p>
         </div>
-
         <div class="details">
             <p><strong>Date:</strong> <span id="date"></span></p>
             <p><strong>Customer:</strong> <span id="customer"></span></p>
         </div>
-
-        <div class="items">
-            <p><strong>Items:</strong></p>
-            <p id="items"></p>
-        </div>
-
+        <div class="items" id="items"></div>
         <div class="total">
             <strong>Total: $<span id="total"></span></strong>
         </div>
-
         <div class="footer">
             <p>Thank you for your purchase!</p>
         </div>
     </div>
-    
     <script>
         // รับข้อมูลจาก URL
         const urlParams = new URLSearchParams(window.location.search);
         const customer = urlParams.get('customer') || 'Unknown';
-        const items = urlParams.get('items') || 'No items';
+        const items = urlParams.get('items') || '';
         const total = urlParams.get('total') || '0.00';
 
         // เติมข้อมูลในหน้า
         document.getElementById('date').innerText = new Date().toLocaleDateString();
         document.getElementById('customer').innerText = customer;
-        document.getElementById('items').innerText = items.replace(/,/g, ', '); // แสดงรายการแบบมี comma
         document.getElementById('total').innerText = parseFloat(total).toFixed(2);
 
-        // พิมพ์อัตโนมัติเมื่อหน้าโหลดเสร็จ
-    window.onload = function() {
-        window.print();
-    };
+        // แสดงรายการสินค้า
+        const itemsContainer = document.getElementById('items');
+        const itemList = items.split(',');
+        itemList.forEach((item, index) => {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'item';
+            itemElement.innerHTML = `<span>Item ${index + 1}: ${item.trim()}</span><span>$10.00</span>`;
+            itemsContainer.appendChild(itemElement);
+        });
+
+        // พิมพ์และปิดหน้า
+        window.onload = function() {
+            window.print(); // สั่งพิมพ์
+            window.onafterprint = function() {
+                window.close(); // ปิดหน้า
+            };
+        };
     </script>
 </body>
 </html>
