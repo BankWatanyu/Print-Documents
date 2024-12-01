@@ -89,29 +89,21 @@
         document.getElementById('sku').textContent = `SKU: ${sku}`;
         document.getElementById('price').textContent = `Price: $${price}`;
 
-        // สร้าง QR Code และรอจนสร้างเสร็จ
+        // สร้าง QR Code และรอจน DOM เสร็จสมบูรณ์
         QRCode.toCanvas(document.getElementById('qrcode'), qrUrl, {
             width: 90,
             margin: 1
         }, function (error) {
-            if (error) {
-                console.error("QR Code Error: ", error);
-            } else {
-                // รอให้ QR Code สร้างเสร็จแล้วจึงพิมพ์
-                finalizePrint();
+            if (!error) {
+                // พิมพ์เมื่อทุกอย่างพร้อม
+                setTimeout(() => {
+                    window.print();
+                    window.onafterprint = function () {
+                        window.close();
+                    };
+                }, 1000); // รอ 1 วินาทีให้ DOM เสถียรก่อนพิมพ์
             }
         });
-
-        // ฟังก์ชันสำหรับพิมพ์เมื่อทุกอย่างพร้อม
-        function finalizePrint() {
-            setTimeout(() => {
-                // รอเวลาเล็กน้อยให้ DOM เสถียร
-                window.print();
-                window.onafterprint = function () {
-                    window.close();
-                };
-            }, 500); // เพิ่ม delay 500ms เพื่อให้โหลดเสร็จสมบูรณ์
-        }
     </script>
 </body>
 </html>
