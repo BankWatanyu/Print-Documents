@@ -10,6 +10,18 @@
             margin: 0;
         }
 
+        body {
+            visibility: hidden; /* ซ่อนเนื้อหาบนหน้าจอ */
+            margin: 0;
+            padding: 0;
+        }
+
+        @media print {
+            body {
+                visibility: visible; /* แสดงเฉพาะเวลาพิมพ์ */
+            }
+        }
+
         .label {
             width: 4in;
             height: 2in;
@@ -44,9 +56,8 @@
             align-items: center;
         }
 
-        canvas {
-            display: block;
-            width: 90px;
+        .qrcode svg {
+            width: 90px; /* ขนาด QR Code */
             height: 90px;
         }
     </style>
@@ -58,9 +69,7 @@
             <p id="sku">SKU</p>
             <p id="price">Price</p>
         </div>
-        <div class="qrcode">
-            <canvas id="qrcode"></canvas>
-        </div>
+        <div class="qrcode" id="qrcode-container"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
@@ -77,19 +86,20 @@
         document.getElementById('sku').textContent = `SKU: ${sku}`;
         document.getElementById('price').textContent = `Price: $${price}`;
 
-        // สร้าง QR Code และรอจน DOM เสร็จสมบูรณ์
-        QRCode.toCanvas(document.getElementById('qrcode'), qrUrl, {
-            width: 90,
-            margin: 1
-        }, function (error) {
+        // สร้าง QR Code แบบ SVG
+        QRCode.toString(qrUrl, { type: 'svg', width: 90, margin: 1 }, function (error, svgString) {
             if (!error) {
-                // พิมพ์เมื่อทุกอย่างพร้อม
+                document.getElementById('qrcode-container').innerHTML = svgString;
+
+                // เรียกพิมพ์เมื่อ QR Code พร้อม
                 setTimeout(() => {
                     window.print();
                     window.onafterprint = function () {
                         window.close();
                     };
                 }, 1000); // รอ 1 วินาทีให้ DOM เสถียรก่อนพิมพ์
+            } else {
+                console.error("QR Code Error: ", error);
             }
         });
     </script>
