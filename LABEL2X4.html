@@ -92,12 +92,11 @@
                 document.getElementById('qrcode-container').innerHTML = svgString;
 
                 // เรียกพิมพ์เมื่อ QR Code พร้อม
-                setTimeout(() => {
-                    window.print();
-                    window.onafterprint = function () {
-                        window.close();
-                    };
-                }, 1000); // รอ 1 วินาทีให้ DOM เสถียรก่อนพิมพ์
+                window.print();
+				
+                window.onafterprint = function () {
+                    window.close();
+                };
             } else {
                 console.error("QR Code Error: ", error);
             }
